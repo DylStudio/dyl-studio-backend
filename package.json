@@ -1,0 +1,9 @@
+{
+  "name": "dyl-studio-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend kecil untuk menangani login Discord OAuth2 untuk DYL STUDIO",
+  "engines": {
+    "node": ">=18"
+  }
+}
