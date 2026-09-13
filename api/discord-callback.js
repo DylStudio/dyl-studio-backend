@@ -2,24 +2,30 @@
 // Endpoint ini dipanggil Discord setelah user klik "Authorize".
 // Tugasnya: tukar "code" jadi access_token, ambil data user, lalu
 // redirect balik ke frontend (GitHub Pages) sambil membawa data user.
-
 export default async function handler(req, res) {
-  const { code } = req.query;
+  const { code, error } = req.query;
+
+  const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+  const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+  const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
+  const FRONTEND_URL = process.env.FRONTEND_URL;
+
+  // Kalau user klik Cancel/Deny di Discord, lempar balik ke website tanpa error
+  if (error) {
+    res.writeHead(302, { Location: FRONTEND_URL });
+    return res.end();
+  }
 
   if (!code) {
     return res.status(400).send('Missing "code" parameter dari Discord.');
   }
-
-  const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-  const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-  const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI; // harus SAMA PERSIS dengan yang didaftarkan di Discord Developer Portal
-  const FRONTEND_URL = process.env.FRONTEND_URL; // contoh: https://dylstudio.github.io/AudioConverterRoblox/
 
   if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI || !FRONTEND_URL) {
     return res.status(500).send('Server belum dikonfigurasi. Cek Environment Variables di Vercel.');
   }
 
   try {
+    
     // 1. Tukar "code" menjadi access_token
     const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
       method: 'POST',
